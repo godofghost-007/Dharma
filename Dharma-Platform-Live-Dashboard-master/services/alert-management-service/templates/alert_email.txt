@@ -1,0 +1,34 @@
+{{severity_icon}} PROJECT DHARMA ALERT {{severity_icon}}
+
+ALERT: {{title}}
+SEVERITY: {{severity}}
+TYPE: {{alert_type}}
+
+DESCRIPTION:
+{{description}}
+
+DETAILS:
+- Platform: {{platform}}
+- Detection Time: {{created_at}}
+- Confidence Score: {{confidence_score}}
+- Risk Score: {{risk_score}}
+{{#affected_regions}}
+- Affected Regions: {{affected_regions}}
+{{/affected_regions}}
+
+{{#content_samples}}
+CONTENT SAMPLES:
+{{#content_samples}}
+- {{.}}
+{{/content_samples}}
+{{/content_samples}}
+
+{{#keywords}}
+KEYWORDS: {{keywords}}
+{{/keywords}}
+
+VIEW IN DASHBOARD: {{dashboard_url}}
+
+Generated at {{timestamp}}
+
+This is an automated alert from Project Dharma Social Media Intelligence Platform

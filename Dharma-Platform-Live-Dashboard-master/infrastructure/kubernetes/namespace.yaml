@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dharma-platform
+  labels:
+    name: dharma-platform
+    environment: production
+    project: project-dharma
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dharma-staging
+  labels:
+    name: dharma-staging
+    environment: staging
+    project: project-dharma
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dharma-monitoring
+  labels:
+    name: dharma-monitoring
+    environment: production
+    project: project-dharma

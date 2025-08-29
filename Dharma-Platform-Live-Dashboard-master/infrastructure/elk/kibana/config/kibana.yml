@@ -1,0 +1,40 @@
+server.name: dharma-kibana
+server.host: "0.0.0.0"
+server.port: 5601
+
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+elasticsearch.username: "kibana_system"
+elasticsearch.password: "kibana_password"
+
+# Monitoring
+monitoring.ui.container.elasticsearch.enabled: true
+monitoring.ui.container.logstash.enabled: true
+
+# Security
+xpack.security.enabled: false
+xpack.encryptedSavedObjects.encryptionKey: "dharma-kibana-encryption-key-32-chars"
+
+# Logging
+logging.appenders:
+  file:
+    type: file
+    fileName: /usr/share/kibana/logs/kibana.log
+    layout:
+      type: json
+logging.loggers:
+  - name: http.server.response
+    level: debug
+
+# Dashboard settings
+kibana.index: ".kibana-dharma"
+kibana.defaultAppId: "dashboard"
+
+# Advanced settings
+server.maxPayload: 1048576
+elasticsearch.requestTimeout: 30000
+elasticsearch.shardTimeout: 30000
+
+# Custom branding
+server.customResponseHeaders:
+  "X-Frame-Options": "SAMEORIGIN"
+  "X-Content-Type-Options": "nosniff"

@@ -1,0 +1,125 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'dharma-platform'
+    environment: 'development'
+
+rule_files:
+  - "alert_rules.yml"
+  - "recording_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # Node Exporter for system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  # Docker containers
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['docker-exporter:9323']
+    scrape_interval: 30s
+
+  # Elasticsearch metrics
+  - job_name: 'elasticsearch'
+    static_configs:
+      - targets: ['elasticsearch:9200']
+    metrics_path: /_prometheus/metrics
+    scrape_interval: 30s
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 15s
+
+  # MongoDB metrics
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']
+    scrape_interval: 30s
+
+  # PostgreSQL metrics
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+
+  # Kafka metrics
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['kafka-exporter:9308']
+    scrape_interval: 30s
+
+  # Application services
+  - job_name: 'data-collection-service'
+    static_configs:
+      - targets: ['data-collection-service:8000']
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  - job_name: 'ai-analysis-service'
+    static_configs:
+      - targets: ['ai-analysis-service:8001']
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  - job_name: 'alert-management-service'
+    static_configs:
+      - targets: ['alert-management-service:8002']
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  - job_name: 'api-gateway-service'
+    static_configs:
+      - targets: ['api-gateway-service:8003']
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  - job_name: 'dashboard-service'
+    static_configs:
+      - targets: ['dashboard-service:8501']
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  - job_name: 'stream-processing-service'
+    static_configs:
+      - targets: ['stream-processing-service:8004']
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  - job_name: 'event-bus-service'
+    static_configs:
+      - targets: ['event-bus-service:8005']
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # Custom business metrics
+  - job_name: 'business-metrics'
+    static_configs:
+      - targets: ['metrics-collector:9091']
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+# Remote write configuration for long-term storage
+remote_write:
+  - url: "http://thanos-receive:19291/api/v1/receive"
+    queue_config:
+      max_samples_per_send: 1000
+      max_shards: 200
+      capacity: 2500

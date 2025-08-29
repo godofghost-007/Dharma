@@ -1,0 +1,38 @@
+{
+  "single_prediction": {
+    "iterations": 50,
+    "avg_time_ms": 0.13176918029785156,
+    "min_time_ms": 0.0,
+    "max_time_ms": 3.5872459411621094,
+    "std_time_ms": 0.5477702203788061,
+    "throughput_per_second": 7589.028008974452
+  },
+  "batch_prediction": {
+    "1": {
+      "batch_size": 1,
+      "total_time_ms": 0.0,
+      "avg_time_per_text_ms": 0.0,
+      "throughput_per_second": 0.0
+    },
+    "5": {
+      "batch_size": 5,
+      "total_time_ms": 0.0,
+      "avg_time_per_text_ms": 0.0,
+      "throughput_per_second": 0.0
+    },
+    "10": {
+      "batch_size": 10,
+      "total_time_ms": 5.150556564331055,
+      "avg_time_per_text_ms": 0.5150556564331055,
+      "throughput_per_second": 1941.5377493866592
+    },
+    "20": {
+      "batch_size": 20,
+      "total_time_ms": 2.5947093963623047,
+      "avg_time_per_text_ms": 0.12973546981811523,
+      "throughput_per_second": 7707.992281540017
+    }
+  },
+  "timestamp": "2025-08-25T18:59:36.967144",
+  "test_text_length": 90
+}

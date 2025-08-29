@@ -1,0 +1,717 @@
+openapi: 3.0.3
+info:
+  title: Project Dharma API
+  description: |
+    Comprehensive AI-powered social media monitoring platform for detecting and analyzing 
+    coordinated disinformation campaigns across multiple digital platforms.
+    
+    ## Features
+    - Real-time data collection from Twitter/X, YouTube, TikTok, Telegram
+    - AI-powered sentiment analysis with India-specific context
+    - Bot detection and coordinated campaign identification
+    - Multi-channel alerting and comprehensive dashboards
+    
+    ## Authentication
+    All endpoints require JWT authentication via Bearer token.
+    
+    ## Rate Limiting
+    - Standard endpoints: 1000 requests per minute
+    - Analysis endpoints: 100 requests per minute
+    - Bulk operations: 10 requests per minute
+    
+  version: 1.0.0
+  contact:
+    name: Project Dharma Team
+    email: support@dharma-platform.gov.in
+  license:
+    name: Government License
+    url: https://dharma-platform.gov.in/license
+
+servers:
+  - url: https://api.dharma-platform.gov.in/v1
+    description: Production server
+  - url: https://staging-api.dharma-platform.gov.in/v1
+    description: Staging server
+  - url: http://localhost:8000/v1
+    description: Development server
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /auth/login endpoint
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        details:
+          type: object
+          description: Additional error details
+      required:
+        - error
+        - code    P
+ost:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique post identifier
+        platform:
+          type: string
+          enum: [twitter, youtube, tiktok, telegram, web]
+          description: Source platform
+        content:
+          type: string
+          description: Post content text
+        user_id:
+          type: string
+          description: User identifier from platform
+        timestamp:
+          type: string
+          format: date-time
+          description: Post creation timestamp
+        metrics:
+          $ref: '#/components/schemas/PostMetrics'
+        analysis_results:
+          $ref: '#/components/schemas/AnalysisResults'
+        geolocation:
+          $ref: '#/components/schemas/Geolocation'
+      required:
+        - id
+        - platform
+        - content
+        - user_id
+        - timestamp
+
+    PostMetrics:
+      type: object
+      properties:
+        likes:
+          type: integer
+          minimum: 0
+        shares:
+          type: integer
+          minimum: 0
+        comments:
+          type: integer
+          minimum: 0
+        views:
+          type: integer
+          minimum: 0
+
+    AnalysisResults:
+      type: object
+      properties:
+        sentiment:
+          type: string
+          enum: [pro_india, neutral, anti_india]
+          description: Sentiment classification
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Confidence score for sentiment
+        bot_probability:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability that author is a bot
+        risk_score:
+          type: number
+          minimum: 0
+          maximum: 10
+          description: Overall risk assessment score
+        propaganda_techniques:
+          type: array
+          items:
+            type: string
+          description: Detected propaganda techniques
+
+    Geolocation:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country code (ISO 3166-1 alpha-2)
+        region:
+          type: string
+          description: Region or state
+        coordinates:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+          description: [longitude, latitude]
+
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique campaign identifier
+        name:
+          type: string
+          description: Campaign name
+        description:
+          type: string
+          description: Campaign description
+        detection_date:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [active, monitoring, resolved, archived]
+        coordination_score:
+          type: number
+          minimum: 0
+          maximum: 10
+          description: Campaign coordination strength
+        participants:
+          type: array
+          items:
+            type: string
+          description: List of participant user IDs
+        impact_metrics:
+          $ref: '#/components/schemas/ImpactMetrics'
+      required:
+        - id
+        - name
+        - detection_date
+        - status
+        - coordination_score
+
+    ImpactMetrics:
+      type: object
+      properties:
+        reach:
+          type: integer
+          minimum: 0
+          description: Total audience reached
+        engagement:
+          type: integer
+          minimum: 0
+          description: Total engagement count
+        virality_score:
+          type: number
+          minimum: 0
+          maximum: 10
+          description: Content virality assessment
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique alert identifier
+        type:
+          type: string
+          enum: [sentiment_spike, bot_network, coordinated_campaign, high_risk_content]
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        title:
+          type: string
+          description: Alert title
+        description:
+          type: string
+          description: Detailed alert description
+        status:
+          type: string
+          enum: [new, acknowledged, investigating, resolved]
+        created_at:
+          type: string
+          format: date-time
+        acknowledged_at:
+          type: string
+          format: date-time
+          nullable: true
+        resolved_at:
+          type: string
+          format: date-time
+          nullable: true
+        assigned_to:
+          type: string
+          nullable: true
+          description: Assigned analyst user ID
+        related_content:
+          type: array
+          items:
+            type: string
+          description: Related post IDs
+      required:
+        - id
+        - type
+        - severity
+        - title
+        - status
+        - created_at
+
+    SentimentRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          maxLength: 10000
+          description: Text to analyze
+        language:
+          type: string
+          default: auto
+          description: Language code or 'auto' for detection
+      required:
+        - text
+
+    SentimentResponse:
+      type: object
+      properties:
+        sentiment:
+          type: string
+          enum: [pro_india, neutral, anti_india]
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        language_detected:
+          type: string
+          description: Detected language code
+        propaganda_techniques:
+          type: array
+          items:
+            type: string
+        processing_time_ms:
+          type: integer
+          description: Processing time in milliseconds
+
+    BotAnalysisRequest:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: User ID to analyze
+        platform:
+          type: string
+          enum: [twitter, youtube, tiktok, telegram]
+      required:
+        - user_id
+        - platform
+
+    BotAnalysisResponse:
+      type: object
+      properties:
+        user_id:
+          type: string
+        bot_probability:
+          type: number
+          minimum: 0
+          maximum: 1
+        behavioral_indicators:
+          type: array
+          items:
+            type: string
+        risk_factors:
+          type: array
+          items:
+            type: string
+        analysis_timestamp:
+          type: string
+          format: date-time
+
+    DashboardMetrics:
+      type: object
+      properties:
+        active_alerts:
+          type: integer
+          minimum: 0
+        posts_analyzed_today:
+          type: integer
+          minimum: 0
+        bot_accounts_detected:
+          type: integer
+          minimum: 0
+        active_campaigns:
+          type: integer
+          minimum: 0
+        sentiment_distribution:
+          type: object
+          properties:
+            pro_india:
+              type: number
+            neutral:
+              type: number
+            anti_india:
+              type: number
+        platform_activity:
+          type: object
+          additionalProperties:
+            type: integer
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and return JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+            example:
+              username: "analyst@dharma.gov.in"
+              password: "secure_password"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                    example: bearer
+                  expires_in:
+                    type: integer
+                    example: 3600
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh JWT token
+      description: Get new JWT token using refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+              required:
+                - refresh_token
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  expires_in:
+                    type: integer
+
+  /analyze/sentiment:
+    post:
+      tags:
+        - AI Analysis
+      summary: Analyze text sentiment
+      description: |
+        Analyze sentiment of provided text with India-specific context.
+        Supports automatic language detection and translation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SentimentRequest'
+            example:
+              text: "भारत एक महान देश है और हमें इस पर गर्व है"
+              language: "auto"
+      responses:
+        '200':
+          description: Sentiment analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SentimentResponse'
+              example:
+                sentiment: "pro_india"
+                confidence: 0.92
+                language_detected: "hi"
+                propaganda_techniques: []
+                processing_time_ms: 245
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /analyze/bot:
+    post:
+      tags:
+        - AI Analysis
+      summary: Analyze user for bot behavior
+      description: |
+        Analyze user behavioral patterns to determine bot probability.
+        Includes network analysis and temporal pattern detection.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BotAnalysisRequest'
+            example:
+              user_id: "twitter_user_123456"
+              platform: "twitter"
+      responses:
+        '200':
+          description: Bot analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotAnalysisResponse'
+              example:
+                user_id: "twitter_user_123456"
+                bot_probability: 0.78
+                behavioral_indicators: ["high_posting_frequency", "repetitive_content"]
+                risk_factors: ["new_account", "suspicious_network"]
+                analysis_timestamp: "2024-01-15T10:30:00Z"
+
+  /campaigns:
+    get:
+      tags:
+        - Campaign Detection
+      summary: List detected campaigns
+      description: Retrieve list of detected disinformation campaigns
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, monitoring, resolved, archived]
+          description: Filter by campaign status
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of campaigns to return
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Number of campaigns to skip
+      responses:
+        '200':
+          description: Campaigns retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  campaigns:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Campaign'
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+
+  /campaigns/{campaign_id}:
+    get:
+      tags:
+        - Campaign Detection
+      summary: Get campaign details
+      description: Retrieve detailed information about a specific campaign
+      parameters:
+        - name: campaign_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Campaign identifier
+      responses:
+        '200':
+          description: Campaign details retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Campaign'
+                  - type: object
+                    properties:
+                      network_graph:
+                        type: object
+                        description: Network visualization data
+                      content_samples:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Post'
+                        description: Sample posts from campaign
+        '404':
+          description: Campaign not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /alerts:
+    get:
+      tags:
+        - Alert Management
+      summary: List alerts
+      description: Retrieve list of system alerts with filtering options
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [new, acknowledged, investigating, resolved]
+          description: Filter by alert status
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+          description: Filter by alert severity
+        - name: type
+          in: query
+          schema:
+            type: string
+          description: Filter by alert type
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Alerts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  alerts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Alert'
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+
+  /alerts/{alert_id}/acknowledge:
+    post:
+      tags:
+        - Alert Management
+      summary: Acknowledge alert
+      description: Mark alert as acknowledged by current user
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Alert identifier
+      responses:
+        '200':
+          description: Alert acknowledged successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        '404':
+          description: Alert not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /dashboard/metrics:
+    get:
+      tags:
+        - Dashboard
+      summary: Get dashboard metrics
+      description: Retrieve key metrics for dashboard overview
+      responses:
+        '200':
+          description: Dashboard metrics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardMetrics'
+              example:
+                active_alerts: 15
+                posts_analyzed_today: 45230
+                bot_accounts_detected: 127
+                active_campaigns: 8
+                sentiment_distribution:
+                  pro_india: 0.45
+                  neutral: 0.35
+                  anti_india: 0.20
+                platform_activity:
+                  twitter: 25000
+                  youtube: 12000
+                  telegram: 8230
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: AI Analysis
+    description: AI-powered content analysis endpoints
+  - name: Campaign Detection
+    description: Coordinated campaign detection and analysis
+  - name: Alert Management
+    description: Alert generation and management
+  - name: Dashboard
+    description: Dashboard data and metrics

@@ -1,0 +1,50 @@
+============================================================
+SENTIMENT ANALYSIS MODEL EVALUATION REPORT
+============================================================
+
+📊 OVERALL PERFORMANCE
+------------------------------
+Accuracy: 0.583 (58.3%)
+Macro Avg Precision: 0.689
+Macro Avg Recall: 0.544
+Macro Avg F1-Score: 0.557
+
+📈 PER-CLASS PERFORMANCE
+------------------------------
+SentimentType.PRO_INDIA:
+  Precision: 0.667
+  Recall: 0.800
+  F1-Score: 0.727
+SentimentType.NEUTRAL:
+  Precision: 0.400
+  Recall: 0.500
+  F1-Score: 0.444
+SentimentType.ANTI_INDIA:
+  Precision: 1.000
+  Recall: 0.333
+  F1-Score: 0.500
+
+🔄 CONFUSION MATRIX
+------------------------------
+True\Pred   PRO_INDI  NEUTRAL   ANTI_IND  
+PRO_INDIA   4         1         0         
+NEUTRAL     2         2         0         
+ANTI_INDIA  0         2         1         
+
+⚡ PERFORMANCE METRICS
+------------------------------
+Avg Processing Time: 0.33ms
+Throughput: 3071.3 texts/second
+
+🎯 CONFIDENCE & RISK METRICS
+------------------------------
+Average Confidence: 0.667
+Average Risk Score: 0.192
+
+🚨 PROPAGANDA DETECTION
+------------------------------
+Detection Rate: 1.000
+Techniques Detected:
+  PropagandaTechnique.LOADED_LANGUAGE: 2
+
+============================================================

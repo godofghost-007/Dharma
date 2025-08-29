@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: project-dharma-dashboard
+    env: docker
+    dockerfilePath: ./services/dashboard-service/Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 8501
+      - key: API_GATEWAY_URL
+        fromService:
+          type: web
+          name: project-dharma-api-gateway
+          property: host
+
+  - type: web
+    name: project-dharma-api-gateway
+    env: docker
+    dockerfilePath: ./services/api-gateway-service/Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8080
+
+  - type: redis
+    name: project-dharma-redis
+    plan: starter
+    maxmemoryPolicy: allkeys-lru
+
+  - type: pserv
+    name: project-dharma-postgres
+    plan: starter
+    databaseName: dharma
+    databaseUser: dharma_user

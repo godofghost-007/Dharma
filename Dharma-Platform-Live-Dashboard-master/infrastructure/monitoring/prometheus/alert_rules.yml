@@ -1,0 +1,165 @@
+groups:
+  - name: dharma-platform-alerts
+    rules:
+      # High error rate alerts
+      - alert: HighErrorRate
+        expr: (rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} for service {{ $labels.job }}"
+
+      # Service down alerts
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "Service is down"
+          description: "Service {{ $labels.job }} has been down for more than 1 minute"
+
+      # High response time alerts
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s for service {{ $labels.job }}"
+
+      # High memory usage alerts
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value | humanizePercentage }} on {{ $labels.instance }}"
+
+      # High CPU usage alerts
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # Disk space alerts
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk space low"
+          description: "Disk space is {{ $value | humanizePercentage }} available on {{ $labels.instance }}"
+
+      # Database connection alerts
+      - alert: DatabaseConnectionsHigh
+        expr: pg_stat_activity_count > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database connections"
+          description: "PostgreSQL has {{ $value }} active connections"
+
+      # Redis memory usage alerts
+      - alert: RedisMemoryHigh
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis memory usage high"
+          description: "Redis memory usage is {{ $value | humanizePercentage }}"
+
+      # Elasticsearch cluster health alerts
+      - alert: ElasticsearchClusterRed
+        expr: elasticsearch_cluster_health_status{color="red"} == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Elasticsearch cluster is red"
+          description: "Elasticsearch cluster health is red"
+
+      # Kafka consumer lag alerts
+      - alert: KafkaConsumerLag
+        expr: kafka_consumer_lag_sum > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Kafka consumer lag high"
+          description: "Kafka consumer lag is {{ $value }} messages"
+
+      # Business metrics alerts
+      - alert: LowPostProcessingRate
+        expr: rate(posts_processed_total[5m]) < 10
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low post processing rate"
+          description: "Post processing rate is {{ $value }} posts/second"
+
+      - alert: HighBotDetectionRate
+        expr: rate(bots_detected_total[5m]) / rate(posts_processed_total[5m]) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High bot detection rate"
+          description: "Bot detection rate is {{ $value | humanizePercentage }}"
+
+      - alert: CampaignDetected
+        expr: increase(campaigns_detected_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "New campaign detected"
+          description: "{{ $value }} new campaigns detected in the last 5 minutes"
+
+      - alert: AlertBacklog
+        expr: alerts_pending_total > 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Alert backlog high"
+          description: "{{ $value }} alerts are pending processing"
+
+  - name: dharma-sla-alerts
+    rules:
+      # SLA violation alerts
+      - alert: SLAViolation
+        expr: (rate(http_requests_total{status=~"2.."}[5m]) / rate(http_requests_total[5m])) < 0.99
+        for: 5m
+        labels:
+          severity: critical
+          sla: availability
+        annotations:
+          summary: "SLA violation - availability"
+          description: "Service availability is {{ $value | humanizePercentage }}, below 99% SLA"
+
+      - alert: ResponseTimeSLAViolation
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: critical
+          sla: response_time
+        annotations:
+          summary: "SLA violation - response time"
+          description: "95th percentile response time is {{ $value }}s, above 1s SLA"

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ page_title }} - Project Dharma{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        .alert-critical { border-left: 5px solid #dc3545; background-color: #f8d7da; }
+        .alert-high { border-left: 5px solid #fd7e14; background-color: #fff3cd; }
+        .alert-medium { border-left: 5px solid #6f42c1; background-color: #e2e3f3; }
+        .alert-low { border-left: 5px solid #198754; background-color: #d1e7dd; }
+        
+        .sidebar {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+        }
+        
+        .main-content {
+            padding: 20px;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-card.critical {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+        
+        .metric-card.warning {
+            background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+        }
+        
+        .metric-card.success {
+            background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);
+        }
+        
+        .alert-row:hover {
+            background-color: #f8f9fa;
+            cursor: pointer;
+        }
+        
+        .status-badge {
+            font-size: 0.8em;
+            padding: 0.25em 0.5em;
+        }
+        
+        .loading {
+            display: none;
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shield-alt"></i> Project Dharma
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user"></i> Analyst
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar">
+                <div class="d-flex flex-column p-3">
+                    <ul class="nav nav-pills flex-column mb-auto">
+                        <li class="nav-item">
+                            <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/inbox" class="nav-link {% if '/inbox' in request.url.path %}active{% endif %}">
+                                <i class="fas fa-inbox"></i> Alert Inbox
+                                <span class="badge bg-danger ms-2" id="alert-count">{{ stats.active_alerts if stats else 0 }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/search" class="nav-link {% if '/search' in request.url.path %}active{% endif %}">
+                                <i class="fas fa-search"></i> Advanced Search
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/analytics" class="nav-link {% if '/analytics' in request.url.path %}active{% endif %}">
+                                <i class="fas fa-chart-bar"></i> Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/escalation" class="nav-link {% if '/escalation' in request.url.path %}active{% endif %}">
+                                <i class="fas fa-exclamation-triangle"></i> Escalation
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/bulk-operations" class="nav-link {% if '/bulk-operations' in request.url.path %}active{% endif %}">
+                                <i class="fas fa-tasks"></i> Bulk Operations
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10 main-content">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Processing...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Common JavaScript -->
+    <script>
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
+            const toastId = 'toast-' + Date.now();
+            
+            const toastHtml = `
+                <div class="toast align-items-center text-white bg-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} border-0" 
+                     role="alert" aria-live="assertive" aria-atomic="true" id="${toastId}">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" 
+                                data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+            
+            // Remove toast element after it's hidden
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                toastElement.remove();
+            });
+        }
+
+        // Loading modal functions
+        function showLoading() {
+            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+            loadingModal.show();
+        }
+
+        function hideLoading() {
+            const loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+            if (loadingModal) {
+                loadingModal.hide();
+            }
+        }
+
+        // AJAX helper function
+        async function makeRequest(url, method = 'GET', data = null) {
+            try {
+                showLoading();
+                
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                };
+                
+                if (data && method !== 'GET') {
+                    options.body = new URLSearchParams(data);
+                }
+                
+                const response = await fetch(url, options);
+                const result = await response.json();
+                
+                hideLoading();
+                return result;
+                
+            } catch (error) {
+                hideLoading();
+                showToast('An error occurred: ' + error.message, 'error');
+                throw error;
+            }
+        }
+
+        // Auto-refresh functionality
+        let autoRefreshInterval;
+        
+        function startAutoRefresh(intervalSeconds = 30) {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            autoRefreshInterval = setInterval(() => {
+                location.reload();
+            }, intervalSeconds * 1000);
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        // Update alert counts periodically
+        async function updateAlertCounts() {
+            try {
+                const response = await fetch('/api/alerts/stats');
+                const stats = await response.json();
+                
+                const alertCountElement = document.getElementById('alert-count');
+                if (alertCountElement && stats.active_alerts !== undefined) {
+                    alertCountElement.textContent = stats.active_alerts;
+                }
+            } catch (error) {
+                console.error('Failed to update alert counts:', error);
+            }
+        }
+
+        // Update counts every 30 seconds
+        setInterval(updateAlertCounts, 30000);
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

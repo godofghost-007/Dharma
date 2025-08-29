@@ -1,0 +1,169 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+  
+  jaeger:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:14250
+      thrift_http:
+        endpoint: 0.0.0.0:14268
+      thrift_compact:
+        endpoint: 0.0.0.0:6831
+      thrift_binary:
+        endpoint: 0.0.0.0:6832
+
+  zipkin:
+    endpoint: 0.0.0.0:9411
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+
+  memory_limiter:
+    limit_mib: 512
+
+  # Resource processor to add service metadata
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: ${ENVIRONMENT}
+        action: upsert
+      - key: service.namespace
+        value: dharma
+        action: upsert
+
+  # Span processor for custom span modifications
+  span:
+    name:
+      # Rename spans based on patterns
+      to_attributes:
+        rules:
+          - pattern: ^(GET|POST|PUT|DELETE|PATCH)\s+(.*)$
+            name_pattern: "HTTP $1"
+      from_attributes:
+        - http.method
+        - http.route
+
+  # Attributes processor for adding custom attributes
+  attributes:
+    actions:
+      - key: correlation.id
+        action: insert
+        from_attribute: http.request.header.x-correlation-id
+      - key: user.id
+        action: insert
+        from_attribute: http.request.header.x-user-id
+      - key: request.id
+        action: insert
+        from_attribute: http.request.header.x-request-id
+
+  # Probabilistic sampler
+  probabilistic_sampler:
+    sampling_percentage: 100  # Sample 100% in development, reduce in production
+
+  # Tail sampling for intelligent sampling decisions
+  tail_sampling:
+    decision_wait: 10s
+    num_traces: 100
+    expected_new_traces_per_sec: 10
+    policies:
+      - name: errors
+        type: status_code
+        status_code: {status_codes: [ERROR]}
+      - name: slow_requests
+        type: latency
+        latency: {threshold_ms: 1000}
+      - name: random_sampling
+        type: probabilistic
+        probabilistic: {sampling_percentage: 10}
+
+exporters:
+  # Jaeger exporter
+  jaeger:
+    endpoint: jaeger:14250
+    tls:
+      insecure: true
+
+  # Zipkin exporter
+  zipkin:
+    endpoint: http://zipkin:9411/api/v2/spans
+
+  # Prometheus exporter for span metrics
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: dharma_traces
+    const_labels:
+      environment: ${ENVIRONMENT}
+
+  # Elasticsearch exporter for trace storage
+  elasticsearch:
+    endpoints: [http://elasticsearch:9200]
+    index: dharma-traces
+    mapping:
+      mode: ecs
+
+  # Logging exporter for debugging
+  logging:
+    loglevel: info
+
+  # OTLP exporter for forwarding to other systems
+  otlp:
+    endpoint: http://jaeger:4317
+    tls:
+      insecure: true
+
+connectors:
+  # Span metrics connector to generate metrics from spans
+  spanmetrics:
+    histogram_buckets: [100us, 1ms, 2ms, 6ms, 10ms, 100ms, 250ms, 500ms, 1000ms, 1400ms, 2000ms, 5s, 10s, 20s, 40s, 60s]
+    dimensions:
+      - name: http.method
+        default: GET
+      - name: http.status_code
+      - name: service.name
+      - name: operation
+        default: unknown
+    exemplars:
+      enabled: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp, jaeger, zipkin]
+      processors: [memory_limiter, resource, attributes, span, batch]
+      exporters: [jaeger, zipkin, elasticsearch, logging]
+
+    # Pipeline for generating metrics from traces
+    traces/spanmetrics:
+      receivers: [otlp, jaeger, zipkin]
+      processors: [memory_limiter, resource, attributes]
+      exporters: [spanmetrics]
+
+    # Pipeline for span-derived metrics
+    metrics/spanmetrics:
+      receivers: [spanmetrics]
+      processors: [batch]
+      exporters: [prometheus]
+
+  extensions: [health_check, pprof, zpages]
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  
+  pprof:
+    endpoint: 0.0.0.0:1777
+  
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+  # Memory ballast for stable memory usage
+  memory_ballast:
+    size_mib: 64

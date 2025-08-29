@@ -1,0 +1,29 @@
+[
+  {
+    "timestamp": "2025-08-25T18:59:37.000992",
+    "num_test_cases": 12,
+    "model_version": "1.0.0-mock",
+    "accuracy": 0.5833333333333334,
+    "macro_avg_f1": 0.5572390572390572,
+    "avg_processing_time_ms": 0.0,
+    "throughput_per_second": 0.0
+  },
+  {
+    "timestamp": "2025-08-25T18:59:37.005138",
+    "num_test_cases": 5,
+    "model_version": "1.0.0-mock",
+    "accuracy": 0.8,
+    "macro_avg_f1": 0.5555555555555555,
+    "avg_processing_time_ms": 0.42510032653808594,
+    "throughput_per_second": 2352.385866517106
+  },
+  {
+    "timestamp": "2025-08-25T18:59:37.007587",
+    "num_test_cases": 5,
+    "model_version": "1.0.0-mock",
+    "accuracy": 0.6,
+    "macro_avg_f1": 0.4444444444444444,
+    "avg_processing_time_ms": 0.2903938293457031,
+    "throughput_per_second": 3443.59934318555
+  }
+]

@@ -1,0 +1,509 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-inbox"></i> Alert Inbox</h1>
+    <div>
+        <button class="btn btn-outline-primary" onclick="location.reload()">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+        <div class="form-check form-switch d-inline-block ms-3">
+            <input class="form-check-input" type="checkbox" id="autoRefresh" onchange="toggleAutoRefresh()">
+            <label class="form-check-label" for="autoRefresh">Auto-refresh</label>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Panel -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel">
+                <i class="fas fa-filter"></i> Filters
+            </button>
+        </h5>
+    </div>
+    <div id="filterPanel" class="collapse show">
+        <div class="card-body">
+            <form method="get" action="/inbox" id="filterForm">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="status" multiple>
+                            {% for status in statuses %}
+                            <option value="{{ status }}" 
+                                    {% if filters.statuses and status in filters.statuses %}selected{% endif %}>
+                                {{ status.title() }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Severity</label>
+                        <select class="form-select" name="severity" multiple>
+                            {% for severity in severities %}
+                            <option value="{{ severity }}" 
+                                    {% if filters.severities and severity in filters.severities %}selected{% endif %}>
+                                {{ severity.title() }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Alert Type</label>
+                        <select class="form-select" name="alert_type" multiple>
+                            {% for alert_type in alert_types %}
+                            <option value="{{ alert_type }}" 
+                                    {% if filters.alert_types and alert_type in filters.alert_types %}selected{% endif %}>
+                                {{ alert_type.replace('_', ' ').title() }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Assigned To</label>
+                        <select class="form-select" name="assigned_to">
+                            <option value="">All</option>
+                            <option value="me" {% if filters.assigned_to == 'me' %}selected{% endif %}>Assigned to me</option>
+                            <option value="unassigned" {% if filters.assigned_to == 'unassigned' %}selected{% endif %}>Unassigned</option>
+                            <option value="others" {% if filters.assigned_to == 'others' %}selected{% endif %}>Assigned to others</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Apply Filters
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary ms-2" onclick="clearFilters()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <span class="text-muted">
+                            Showing {{ alerts|length }} of {{ pagination.total_count }} alerts
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Actions Panel -->
+<div class="card mb-4" id="bulkActionsPanel" style="display: none;">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <span id="selectedCount">0</span> alerts selected
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-sm btn-success" onclick="bulkAcknowledge()">
+                    <i class="fas fa-check"></i> Acknowledge
+                </button>
+                <button class="btn btn-sm btn-primary" onclick="showBulkAssignModal()">
+                    <i class="fas fa-user"></i> Assign
+                </button>
+                <button class="btn btn-sm btn-warning" onclick="showBulkEscalateModal()">
+                    <i class="fas fa-exclamation-triangle"></i> Escalate
+                </button>
+                <button class="btn btn-sm btn-info" onclick="showBulkResolveModal()">
+                    <i class="fas fa-check-circle"></i> Resolve
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alerts Table -->
+<div class="card">
+    <div class="card-body">
+        {% if alerts %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th width="30">
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                        </th>
+                        <th>Alert</th>
+                        <th>Type</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Assigned</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alert in alerts %}
+                    <tr class="alert-row alert-{{ alert.severity }}" data-alert-id="{{ alert.alert_id }}">
+                        <td>
+                            <input type="checkbox" class="alert-checkbox" value="{{ alert.alert_id }}" 
+                                   onchange="updateBulkActions()">
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ alert.title[:50] }}{% if alert.title|length > 50 %}...{% endif %}</div>
+                            <small class="text-muted">{{ alert.alert_id[:8] }}...</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ alert.alert_type.replace('_', ' ').title() }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if alert.severity == 'critical' %}danger{% elif alert.severity == 'high' %}warning{% elif alert.severity == 'medium' %}info{% else %}success{% endif %}">
+                                {{ alert.severity.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge status-badge bg-{% if alert.status == 'new' %}primary{% elif alert.status == 'acknowledged' %}info{% elif alert.status == 'investigating' %}warning{% elif alert.status == 'resolved' %}success{% else %}secondary{% endif %}">
+                                {{ alert.status.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <div>{{ alert.created_at.strftime('%Y-%m-%d') if alert.created_at else 'N/A' }}</div>
+                            <small class="text-muted">{{ alert.created_at.strftime('%H:%M') if alert.created_at else '' }}</small>
+                        </td>
+                        <td>
+                            {% if alert.assigned_to %}
+                                <span class="badge bg-info">{{ alert.assigned_to }}</span>
+                            {% else %}
+                                <span class="text-muted">Unassigned</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewAlert('{{ alert.alert_id }}')" 
+                                        title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                {% if alert.status == 'new' %}
+                                <button class="btn btn-outline-success" onclick="acknowledgeAlert('{{ alert.alert_id }}')" 
+                                        title="Acknowledge">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                {% endif %}
+                                <button class="btn btn-outline-info" onclick="showAssignModal('{{ alert.alert_id }}')" 
+                                        title="Assign">
+                                    <i class="fas fa-user"></i>
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="showEscalateModal('{{ alert.alert_id }}')" 
+                                        title="Escalate">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.total_pages > 1 %}
+        <nav aria-label="Alert pagination">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if pagination.current_page == 1 %}disabled{% endif %}">
+                    <a class="page-link" href="?page={{ pagination.current_page - 1 }}{% if request.query_string %}&{{ request.query_string }}{% endif %}">Previous</a>
+                </li>
+                
+                {% for page_num in range(1, pagination.total_pages + 1) %}
+                    {% if page_num == pagination.current_page %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                    {% elif page_num <= 3 or page_num > pagination.total_pages - 3 or (page_num >= pagination.current_page - 1 and page_num <= pagination.current_page + 1) %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_num }}{% if request.query_string %}&{{ request.query_string }}{% endif %}">{{ page_num }}</a>
+                        </li>
+                    {% elif page_num == 4 or page_num == pagination.total_pages - 3 %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                <li class="page-item {% if pagination.current_page == pagination.total_pages %}disabled{% endif %}">
+                    <a class="page-link" href="?page={{ pagination.current_page + 1 }}{% if request.query_string %}&{{ request.query_string }}{% endif %}">Next</a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No alerts found</h4>
+            <p class="text-muted">Try adjusting your filters or check back later.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Assign Modal -->
+<div class="modal fade" id="assignModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assign Alert</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assignForm">
+                    <input type="hidden" id="assignAlertId" name="alert_id">
+                    <div class="mb-3">
+                        <label class="form-label">Assign to</label>
+                        <select class="form-select" name="assigned_to" required>
+                            <option value="">Select user...</option>
+                            <option value="analyst_1">Analyst 1</option>
+                            <option value="analyst_2">Analyst 2</option>
+                            <option value="supervisor_1">Supervisor 1</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes (optional)</label>
+                        <textarea class="form-control" name="notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitAssignment()">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Escalate Modal -->
+<div class="modal fade" id="escalateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Escalate Alert</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="escalateForm">
+                    <input type="hidden" id="escalateAlertId" name="alert_id">
+                    <div class="mb-3">
+                        <label class="form-label">Escalation Level</label>
+                        <select class="form-select" name="escalation_level" required>
+                            <option value="">Select level...</option>
+                            <option value="level_2">Level 2</option>
+                            <option value="level_3">Level 3</option>
+                            <option value="level_4">Level 4</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reason</label>
+                        <textarea class="form-control" name="reason" rows="3" required 
+                                  placeholder="Explain why this alert needs escalation..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Additional Notes (optional)</label>
+                        <textarea class="form-control" name="notes" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" onclick="submitEscalation()">Escalate</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let selectedAlerts = [];
+
+    function toggleAutoRefresh() {
+        const checkbox = document.getElementById('autoRefresh');
+        if (checkbox.checked) {
+            startAutoRefresh(30);
+            showToast('Auto-refresh enabled (30 seconds)', 'info');
+        } else {
+            stopAutoRefresh();
+            showToast('Auto-refresh disabled', 'info');
+        }
+    }
+
+    function clearFilters() {
+        const form = document.getElementById('filterForm');
+        const selects = form.querySelectorAll('select');
+        selects.forEach(select => {
+            select.selectedIndex = 0;
+            if (select.multiple) {
+                Array.from(select.options).forEach(option => option.selected = false);
+            }
+        });
+        form.submit();
+    }
+
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.alert-checkbox');
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+        
+        updateBulkActions();
+    }
+
+    function updateBulkActions() {
+        const checkboxes = document.querySelectorAll('.alert-checkbox:checked');
+        selectedAlerts = Array.from(checkboxes).map(cb => cb.value);
+        
+        const bulkPanel = document.getElementById('bulkActionsPanel');
+        const selectedCount = document.getElementById('selectedCount');
+        
+        if (selectedAlerts.length > 0) {
+            bulkPanel.style.display = 'block';
+            selectedCount.textContent = selectedAlerts.length;
+        } else {
+            bulkPanel.style.display = 'none';
+        }
+    }
+
+    function viewAlert(alertId) {
+        window.location.href = `/alert/${alertId}`;
+    }
+
+    async function acknowledgeAlert(alertId) {
+        try {
+            const result = await makeRequest(`/api/alerts/${alertId}/acknowledge`, 'POST', {
+                user_id: 'current_user',
+                notes: 'Acknowledged from inbox'
+            });
+            
+            if (result.success) {
+                showToast(result.message, 'success');
+                location.reload();
+            } else {
+                showToast(result.message, 'error');
+            }
+        } catch (error) {
+            showToast('Failed to acknowledge alert', 'error');
+        }
+    }
+
+    function showAssignModal(alertId) {
+        document.getElementById('assignAlertId').value = alertId;
+        const modal = new bootstrap.Modal(document.getElementById('assignModal'));
+        modal.show();
+    }
+
+    async function submitAssignment() {
+        const form = document.getElementById('assignForm');
+        const formData = new FormData(form);
+        const alertId = formData.get('alert_id');
+        
+        try {
+            const result = await makeRequest(`/api/alerts/${alertId}/assign`, 'POST', {
+                assigned_to: formData.get('assigned_to'),
+                assigned_by: 'current_user',
+                notes: formData.get('notes')
+            });
+            
+            if (result.success) {
+                showToast(result.message, 'success');
+                bootstrap.Modal.getInstance(document.getElementById('assignModal')).hide();
+                location.reload();
+            } else {
+                showToast(result.message, 'error');
+            }
+        } catch (error) {
+            showToast('Failed to assign alert', 'error');
+        }
+    }
+
+    function showEscalateModal(alertId) {
+        document.getElementById('escalateAlertId').value = alertId;
+        const modal = new bootstrap.Modal(document.getElementById('escalateModal'));
+        modal.show();
+    }
+
+    async function submitEscalation() {
+        const form = document.getElementById('escalateForm');
+        const formData = new FormData(form);
+        const alertId = formData.get('alert_id');
+        
+        try {
+            const result = await makeRequest(`/api/alerts/${alertId}/escalate`, 'POST', {
+                escalated_by: 'current_user',
+                escalation_level: formData.get('escalation_level'),
+                reason: formData.get('reason'),
+                notes: formData.get('notes')
+            });
+            
+            if (result.success) {
+                showToast(result.message, 'success');
+                bootstrap.Modal.getInstance(document.getElementById('escalateModal')).hide();
+                location.reload();
+            } else {
+                showToast(result.message, 'error');
+            }
+        } catch (error) {
+            showToast('Failed to escalate alert', 'error');
+        }
+    }
+
+    async function bulkAcknowledge() {
+        if (selectedAlerts.length === 0) return;
+        
+        try {
+            const result = await makeRequest('/api/bulk-operations', 'POST', {
+                operation: 'acknowledge',
+                alert_ids: JSON.stringify(selectedAlerts),
+                user_id: 'current_user',
+                parameters: JSON.stringify({notes: 'Bulk acknowledged'})
+            });
+            
+            if (result.success) {
+                showToast(result.message, 'success');
+                location.reload();
+            } else {
+                showToast(result.message, 'error');
+            }
+        } catch (error) {
+            showToast('Failed to perform bulk acknowledgment', 'error');
+        }
+    }
+
+    function showBulkAssignModal() {
+        if (selectedAlerts.length === 0) return;
+        // Implementation for bulk assign modal
+        showToast('Bulk assign modal would be shown here', 'info');
+    }
+
+    function showBulkEscalateModal() {
+        if (selectedAlerts.length === 0) return;
+        // Implementation for bulk escalate modal
+        showToast('Bulk escalate modal would be shown here', 'info');
+    }
+
+    function showBulkResolveModal() {
+        if (selectedAlerts.length === 0) return;
+        // Implementation for bulk resolve modal
+        showToast('Bulk resolve modal would be shown here', 'info');
+    }
+
+    // Add click handler for alert rows
+    document.addEventListener('DOMContentLoaded', function() {
+        const alertRows = document.querySelectorAll('.alert-row');
+        alertRows.forEach(row => {
+            row.addEventListener('click', function(e) {
+                // Don't trigger if clicking on checkbox or buttons
+                if (e.target.type === 'checkbox' || e.target.closest('button') || e.target.closest('.btn-group')) {
+                    return;
+                }
+                
+                const alertId = this.dataset.alertId;
+                viewAlert(alertId);
+            });
+        });
+    });
+</script>
+{% endblock %}

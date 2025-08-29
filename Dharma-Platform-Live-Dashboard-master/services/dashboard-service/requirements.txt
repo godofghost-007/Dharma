@@ -1,0 +1,17 @@
+# Dashboard Service Dependencies
+streamlit==1.28.2
+plotly==5.17.0
+pandas==2.1.4
+numpy==1.24.4
+
+# API client
+httpx==0.25.2
+fastapi==0.104.1
+
+# Visualization
+networkx==3.2.1
+matplotlib==3.8.2
+
+# Utilities
+python-dotenv==1.0.0
+structlog==23.2.0

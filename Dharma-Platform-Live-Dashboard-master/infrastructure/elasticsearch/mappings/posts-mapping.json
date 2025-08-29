@@ -1,0 +1,172 @@
+{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 1,
+    "analysis": {
+      "analyzer": {
+        "dharma_text_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "stop",
+            "snowball",
+            "dharma_synonym"
+          ]
+        },
+        "dharma_search_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "stop",
+            "snowball"
+          ]
+        }
+      },
+      "filter": {
+        "dharma_synonym": {
+          "type": "synonym",
+          "synonyms": [
+            "india,bharat,hindustan",
+            "modi,pm,prime minister",
+            "bjp,bharatiya janata party",
+            "congress,inc,indian national congress"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "platform": {
+        "type": "keyword"
+      },
+      "post_id": {
+        "type": "keyword"
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "dharma_text_analyzer",
+        "search_analyzer": "dharma_search_analyzer",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          },
+          "raw": {
+            "type": "text",
+            "analyzer": "standard"
+          }
+        }
+      },
+      "user_id": {
+        "type": "keyword"
+      },
+      "username": {
+        "type": "keyword"
+      },
+      "timestamp": {
+        "type": "date",
+        "format": "strict_date_optional_time||epoch_millis"
+      },
+      "language": {
+        "type": "keyword"
+      },
+      "metrics": {
+        "properties": {
+          "likes": {
+            "type": "integer"
+          },
+          "shares": {
+            "type": "integer"
+          },
+          "comments": {
+            "type": "integer"
+          },
+          "views": {
+            "type": "integer"
+          },
+          "engagement_rate": {
+            "type": "float"
+          }
+        }
+      },
+      "analysis_results": {
+        "properties": {
+          "sentiment": {
+            "type": "keyword"
+          },
+          "sentiment_confidence": {
+            "type": "float"
+          },
+          "bot_probability": {
+            "type": "float"
+          },
+          "risk_score": {
+            "type": "float"
+          },
+          "propaganda_techniques": {
+            "type": "keyword"
+          },
+          "topics": {
+            "type": "keyword"
+          },
+          "entities": {
+            "properties": {
+              "persons": {
+                "type": "keyword"
+              },
+              "organizations": {
+                "type": "keyword"
+              },
+              "locations": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      },
+      "geolocation": {
+        "properties": {
+          "country": {
+            "type": "keyword"
+          },
+          "region": {
+            "type": "keyword"
+          },
+          "city": {
+            "type": "keyword"
+          },
+          "coordinates": {
+            "type": "geo_point"
+          }
+        }
+      },
+      "media": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "urls": {
+            "type": "keyword"
+          },
+          "has_media": {
+            "type": "boolean"
+          }
+        }
+      },
+      "campaign_id": {
+        "type": "keyword"
+      },
+      "created_at": {
+        "type": "date",
+        "format": "strict_date_optional_time||epoch_millis"
+      },
+      "updated_at": {
+        "type": "date",
+        "format": "strict_date_optional_time||epoch_millis"
+      }
+    }
+  }
+}

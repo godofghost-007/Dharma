@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "name": "project-dharma",
+  "builds": [
+    {
+      "src": "demo_app.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "simple_api_gateway.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/simple_api_gateway.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/demo_app.py"
+    }
+  ],
+  "env": {
+    "PYTHONPATH": ".",
+    "PORT": "3000"
+  },
+  "functions": {
+    "demo_app.py": {
+      "maxDuration": 30
+    },
+    "simple_api_gateway.py": {
+      "maxDuration": 30
+    }
+  }
+}

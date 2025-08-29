@@ -1,0 +1,1 @@
+"""Core alert management components."""

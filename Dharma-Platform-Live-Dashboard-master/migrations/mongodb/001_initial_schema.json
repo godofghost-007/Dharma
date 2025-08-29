@@ -1,0 +1,151 @@
+{
+  "version": "1.0.0",
+  "name": "initial_schema",
+  "description": "Create initial MongoDB collections and indexes",
+  "database_type": "mongodb",
+  "migration_type": "schema",
+  "operations": [
+    {
+      "type": "create_collection",
+      "collection": "posts",
+      "options": {
+        "validator": {
+          "$jsonSchema": {
+            "bsonType": "object",
+            "required": ["platform", "post_id", "content", "user_id", "timestamp"],
+            "properties": {
+              "platform": {
+                "bsonType": "string",
+                "enum": ["twitter", "youtube", "telegram", "tiktok", "web"]
+              },
+              "post_id": {"bsonType": "string"},
+              "content": {"bsonType": "string"},
+              "user_id": {"bsonType": "string"},
+              "timestamp": {"bsonType": "date"},
+              "metrics": {
+                "bsonType": "object",
+                "properties": {
+                  "likes": {"bsonType": "int"},
+                  "shares": {"bsonType": "int"},
+                  "comments": {"bsonType": "int"},
+                  "views": {"bsonType": "int"}
+                }
+              },
+              "analysis_results": {
+                "bsonType": "object",
+                "properties": {
+                  "sentiment": {"bsonType": "string"},
+                  "confidence": {"bsonType": "double"},
+                  "risk_score": {"bsonType": "double"},
+                  "bot_probability": {"bsonType": "double"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "create_index",
+      "collection": "posts",
+      "index": [["platform", 1], ["timestamp", -1]],
+      "options": {"name": "platform_timestamp_idx"}
+    },
+    {
+      "type": "create_index",
+      "collection": "posts",
+      "index": [["user_id", 1], ["timestamp", -1]],
+      "options": {"name": "user_timestamp_idx"}
+    },
+    {
+      "type": "create_index",
+      "collection": "posts",
+      "index": [["analysis_results.sentiment", 1], ["timestamp", -1]],
+      "options": {"name": "sentiment_timestamp_idx"}
+    },
+    {
+      "type": "create_index",
+      "collection": "posts",
+      "index": [["analysis_results.risk_score", -1]],
+      "options": {"name": "risk_score_idx"}
+    },
+    {
+      "type": "create_index",
+      "collection": "posts",
+      "index": [["content", "text"]],
+      "options": {"name": "content_text_idx"}
+    },
+    {
+      "type": "create_collection",
+      "collection": "campaigns",
+      "options": {
+        "validator": {
+          "$jsonSchema": {
+            "bsonType": "object",
+            "required": ["name", "detection_date", "status", "coordination_score"],
+            "properties": {
+              "name": {"bsonType": "string"},
+              "description": {"bsonType": "string"},
+              "detection_date": {"bsonType": "date"},
+              "status": {
+                "bsonType": "string",
+                "enum": ["active", "monitoring", "resolved", "false_positive"]
+              },
+              "coordination_score": {"bsonType": "double"},
+              "participants": {
+                "bsonType": "array",
+                "items": {"bsonType": "objectId"}
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "create_index",
+      "collection": "campaigns",
+      "index": [["status", 1], ["detection_date", -1]],
+      "options": {"name": "status_date_idx"}
+    },
+    {
+      "type": "create_index",
+      "collection": "campaigns",
+      "index": [["coordination_score", -1]],
+      "options": {"name": "coordination_score_idx"}
+    },
+    {
+      "type": "create_collection",
+      "collection": "user_profiles",
+      "options": {
+        "validator": {
+          "$jsonSchema": {
+            "bsonType": "object",
+            "required": ["platform", "user_id", "username"],
+            "properties": {
+              "platform": {
+                "bsonType": "string",
+                "enum": ["twitter", "youtube", "telegram", "tiktok"]
+              },
+              "user_id": {"bsonType": "string"},
+              "username": {"bsonType": "string"},
+              "bot_probability": {"bsonType": "double"},
+              "behavioral_features": {"bsonType": "object"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "create_index",
+      "collection": "user_profiles",
+      "index": [["platform", 1], ["user_id", 1]],
+      "options": {"name": "platform_user_idx", "unique": true}
+    },
+    {
+      "type": "create_index",
+      "collection": "user_profiles",
+      "index": [["bot_probability", -1]],
+      "options": {"name": "bot_probability_idx"}
+    }
+  ]
+}

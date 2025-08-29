@@ -1,0 +1,108 @@
+{
+  "dashboard": {
+    "title": "প্রজেক্ট ধর্ম - সোশ্যাল মিডিয়া ইন্টেলিজেন্স",
+    "overview": "ড্যাশবোর্ড ওভারভিউ",
+    "campaign_analysis": "ক্যাম্পেইন বিশ্লেষণ",
+    "alert_management": "সতর্কতা ব্যবস্থাপনা",
+    "settings": "সেটিংস",
+    "real_time_monitoring": "রিয়েল-টাইম সোশ্যাল মিডিয়া মনিটরিং"
+  },
+  "metrics": {
+    "active_alerts": "সক্রিয় সতর্কতা",
+    "posts_analyzed_today": "আজ বিশ্লেষিত পোস্ট",
+    "bot_accounts_detected": "বট অ্যাকাউন্ট সনাক্ত",
+    "active_campaigns": "সক্রিয় ক্যাম্পেইন",
+    "sentiment_distribution": "অনুভূতি বিতরণ",
+    "platform_activity": "প্ল্যাটফর্ম কার্যকলাপ",
+    "key_metrics": "মূল মেট্রিক্স",
+    "geographic_distribution": "ভৌগোলিক বিতরণ"
+  },
+  "sentiment": {
+    "pro_india": "ভারত সমর্থক",
+    "neutral": "নিরপেক্ষ",
+    "anti_india": "ভারত বিরোধী",
+    "positive": "ইতিবাচক",
+    "negative": "নেতিবাচক",
+    "sentiment_trends": "অনুভূতির প্রবণতা"
+  },
+  "alerts": {
+    "new": "নতুন",
+    "acknowledged": "স্বীকৃত",
+    "in_progress": "চলমান",
+    "resolved": "সমাধান হয়েছে",
+    "critical": "গুরুতর",
+    "high": "উচ্চ",
+    "medium": "মধ্যম",
+    "low": "কম",
+    "alert_inbox": "সতর্কতা ইনবক্স",
+    "alert_controls": "সতর্কতা নিয়ন্ত্রণ",
+    "alert_statistics": "সতর্কতা পরিসংখ্যান",
+    "recent_activity": "সাম্প্রতিক কার্যকলাপ"
+  },
+  "campaigns": {
+    "coordination_score": "সমন্বয় স্কোর",
+    "participants": "অংশগ্রহণকারী",
+    "detected": "সনাক্ত করা হয়েছে",
+    "impact_score": "প্রভাব স্কোর",
+    "network_graph": "নেটওয়ার্ক গ্রাফ",
+    "timeline_analysis": "টাইমলাইন বিশ্লেষণ",
+    "participant_analysis": "অংশগ্রহণকারী বিশ্লেষণ",
+    "content_analysis": "বিষয়বস্তু বিশ্লেষণ",
+    "campaign_overview": "ক্যাম্পেইন ওভারভিউ"
+  },
+  "actions": {
+    "login": "লগইন",
+    "logout": "লগআউট",
+    "refresh": "রিফ্রেশ",
+    "export": "রপ্তানি",
+    "acknowledge": "স্বীকার করুন",
+    "assign": "বরাদ্দ করুন",
+    "search": "অনুসন্ধান",
+    "filter": "ফিল্টার",
+    "sort": "সাজান",
+    "apply_filters": "ফিল্টার প্রয়োগ করুন",
+    "load_more": "আরো লোড করুন",
+    "refresh_now": "এখনই রিফ্রেশ করুন"
+  },
+  "navigation": {
+    "skip_to_content": "মূল বিষয়বস্তুতে যান",
+    "main_menu": "মূল মেনু",
+    "user_menu": "ব্যবহারকারী মেনু",
+    "navigate_to": "এখানে যান:"
+  },
+  "accessibility": {
+    "high_contrast": "উচ্চ কনট্রাস্ট মোড",
+    "large_fonts": "বড় ফন্ট",
+    "screen_reader": "স্ক্রিন রিডার মোড",
+    "reduce_motion": "গতি কমান",
+    "keyboard_navigation": "কীবোর্ড নেভিগেশন",
+    "accessibility": "অ্যাক্সেসিবিলিটি"
+  },
+  "filters": {
+    "status_filter": "স্ট্যাটাস ফিল্টার",
+    "severity_filter": "তীব্রতা ফিল্টার",
+    "type_filter": "টাইপ ফিল্টার",
+    "time_range": "সময়সীমা",
+    "all": "সব",
+    "last_24h": "গত ২৪ ঘন্টা",
+    "last_7d": "গত ৭ দিন",
+    "last_30d": "গত ৩০ দিন",
+    "all_time": "সব সময়"
+  },
+  "export": {
+    "export_options": "রপ্তানি বিকল্প",
+    "export_report": "রিপোর্ট রপ্তানি (PDF)",
+    "export_charts": "চার্ট রপ্তানি (PNG)",
+    "export_data": "ডেটা রপ্তানি (CSV)",
+    "export_network": "নেটওয়ার্ক রপ্তানি (JSON)",
+    "daily_report": "দৈনিক রিপোর্ট",
+    "weekly_summary": "সাপ্তাহিক সারসংক্ষেপ"
+  },
+  "messages": {
+    "loading": "লোড হচ্ছে...",
+    "no_data": "কোন ডেটা উপলব্ধ নেই",
+    "error_loading": "ডেটা লোড করতে ত্রুটি",
+    "success": "সফল!",
+    "please_login": "ড্যাশবোর্ড অ্যাক্সেস করতে সাইডবার ব্যবহার করে লগইন করুন।"
+  }
+}

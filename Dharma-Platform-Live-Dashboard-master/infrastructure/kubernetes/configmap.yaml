@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dharma-config
+  namespace: dharma-platform
+data:
+  # Database Configuration
+  MONGODB_HOST: "mongodb-service"
+  MONGODB_PORT: "27017"
+  MONGODB_DATABASE: "dharma_platform"
+  
+  POSTGRESQL_HOST: "postgresql-service"
+  POSTGRESQL_PORT: "5432"
+  POSTGRESQL_DATABASE: "dharma_platform"
+  
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  
+  ELASTICSEARCH_HOST: "elasticsearch-service"
+  ELASTICSEARCH_PORT: "9200"
+  
+  # Kafka Configuration
+  KAFKA_BOOTSTRAP_SERVERS: "kafka-service:9092"
+  KAFKA_TOPIC_PREFIX: "dharma"
+  
+  # Service Configuration
+  API_GATEWAY_PORT: "8000"
+  DATA_COLLECTION_PORT: "8001"
+  AI_ANALYSIS_PORT: "8002"
+  CAMPAIGN_DETECTION_PORT: "8003"
+  ALERT_MANAGEMENT_PORT: "8004"
+  DASHBOARD_PORT: "8501"
+  
+  # Application Settings
+  LOG_LEVEL: "INFO"
+  DEBUG: "false"
+  ENVIRONMENT: "production"
+  
+  # Rate Limiting
+  RATE_LIMIT_PER_MINUTE: "1000"
+  RATE_LIMIT_BURST: "100"
+  
+  # AI Model Settings
+  MODEL_BATCH_SIZE: "32"
+  MODEL_MAX_LENGTH: "512"
+  
+  # Alert Settings
+  ALERT_RETENTION_DAYS: "90"
+  EMAIL_RATE_LIMIT: "100"
+  SMS_RATE_LIMIT: "50"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dharma-staging-config
+  namespace: dharma-staging
+data:
+  # Database Configuration
+  MONGODB_HOST: "mongodb-staging-service"
+  MONGODB_PORT: "27017"
+  MONGODB_DATABASE: "dharma_staging"
+  
+  POSTGRESQL_HOST: "postgresql-staging-service"
+  POSTGRESQL_PORT: "5432"
+  POSTGRESQL_DATABASE: "dharma_staging"
+  
+  REDIS_HOST: "redis-staging-service"
+  REDIS_PORT: "6379"
+  
+  # Application Settings
+  LOG_LEVEL: "DEBUG"
+  DEBUG: "true"
+  ENVIRONMENT: "staging"
+  
+  # Rate Limiting (more permissive for testing)
+  RATE_LIMIT_PER_MINUTE: "2000"
+  RATE_LIMIT_BURST: "200"

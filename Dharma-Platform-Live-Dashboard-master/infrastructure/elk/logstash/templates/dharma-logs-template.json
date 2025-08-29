@@ -1,0 +1,103 @@
+{
+  "index_patterns": ["dharma-logs-*"],
+  "settings": {
+    "number_of_shards": 2,
+    "number_of_replicas": 1,
+    "index.refresh_interval": "5s",
+    "index.codec": "best_compression"
+  },
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date"
+      },
+      "timestamp": {
+        "type": "date"
+      },
+      "service": {
+        "type": "keyword"
+      },
+      "level": {
+        "type": "keyword"
+      },
+      "logger_name": {
+        "type": "keyword"
+      },
+      "message": {
+        "type": "text",
+        "analyzer": "standard"
+      },
+      "log_message": {
+        "type": "text",
+        "analyzer": "standard"
+      },
+      "correlation_id": {
+        "type": "keyword"
+      },
+      "trace_id": {
+        "type": "keyword"
+      },
+      "user_id": {
+        "type": "keyword"
+      },
+      "request_id": {
+        "type": "keyword"
+      },
+      "client_ip": {
+        "type": "ip"
+      },
+      "geoip": {
+        "properties": {
+          "location": {
+            "type": "geo_point"
+          },
+          "country_name": {
+            "type": "keyword"
+          },
+          "city_name": {
+            "type": "keyword"
+          }
+        }
+      },
+      "error": {
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "message": {
+            "type": "text"
+          },
+          "stack_trace": {
+            "type": "text"
+          }
+        }
+      },
+      "performance": {
+        "properties": {
+          "duration_ms": {
+            "type": "long"
+          },
+          "memory_usage": {
+            "type": "long"
+          },
+          "cpu_usage": {
+            "type": "float"
+          }
+        }
+      },
+      "business_metrics": {
+        "properties": {
+          "posts_processed": {
+            "type": "long"
+          },
+          "alerts_generated": {
+            "type": "long"
+          },
+          "campaigns_detected": {
+            "type": "long"
+          }
+        }
+      }
+    }
+  }
+}

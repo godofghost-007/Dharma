@@ -1,0 +1,37 @@
+# Development overrides for docker-compose.yml
+services:
+  data-collection-service:
+    volumes:
+      - ./services/data-collection-service:/app:rw
+      - ./shared:/app/shared:ro
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  ai-analysis-service:
+    volumes:
+      - ./services/ai-analysis-service:/app:rw
+      - ./shared:/app/shared:ro
+      - ./models:/app/models:ro
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+
+  api-gateway-service:
+    volumes:
+      - ./services/api-gateway-service:/app:rw
+      - ./shared:/app/shared:ro
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
+
+  dashboard-service:
+    volumes:
+      - ./services/dashboard-service:/app:rw
+      - ./shared:/app/shared:ro
+    environment:
+      - DEBUG=true
+    command: ["streamlit", "run", "main.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.runOnSave=true"]

@@ -1,0 +1,7 @@
+{
+  "version": "1.0.0",
+  "name": "initial_schema",
+  "description": "Create initial PostgreSQL tables for user management and alerts",
+  "database_type": "postgresql",
+  "migration_type": "schema"
+}

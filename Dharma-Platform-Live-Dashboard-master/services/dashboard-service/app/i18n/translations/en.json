@@ -1,0 +1,108 @@
+{
+  "dashboard": {
+    "title": "Project Dharma - Social Media Intelligence",
+    "overview": "Dashboard Overview",
+    "campaign_analysis": "Campaign Analysis",
+    "alert_management": "Alert Management",
+    "settings": "Settings",
+    "real_time_monitoring": "Real-time Social Media Monitoring"
+  },
+  "metrics": {
+    "active_alerts": "Active Alerts",
+    "posts_analyzed_today": "Posts Analyzed Today",
+    "bot_accounts_detected": "Bot Accounts Detected",
+    "active_campaigns": "Active Campaigns",
+    "sentiment_distribution": "Sentiment Distribution",
+    "platform_activity": "Platform Activity",
+    "key_metrics": "Key Metrics",
+    "geographic_distribution": "Geographic Distribution"
+  },
+  "sentiment": {
+    "pro_india": "Pro-India",
+    "neutral": "Neutral",
+    "anti_india": "Anti-India",
+    "positive": "Positive",
+    "negative": "Negative",
+    "sentiment_trends": "Sentiment Trends"
+  },
+  "alerts": {
+    "new": "New",
+    "acknowledged": "Acknowledged",
+    "in_progress": "In Progress",
+    "resolved": "Resolved",
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "alert_inbox": "Alert Inbox",
+    "alert_controls": "Alert Controls",
+    "alert_statistics": "Alert Statistics",
+    "recent_activity": "Recent Activity"
+  },
+  "campaigns": {
+    "coordination_score": "Coordination Score",
+    "participants": "Participants",
+    "detected": "Detected",
+    "impact_score": "Impact Score",
+    "network_graph": "Network Graph",
+    "timeline_analysis": "Timeline Analysis",
+    "participant_analysis": "Participant Analysis",
+    "content_analysis": "Content Analysis",
+    "campaign_overview": "Campaign Overview"
+  },
+  "actions": {
+    "login": "Login",
+    "logout": "Logout",
+    "refresh": "Refresh",
+    "export": "Export",
+    "acknowledge": "Acknowledge",
+    "assign": "Assign",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "apply_filters": "Apply Filters",
+    "load_more": "Load More",
+    "refresh_now": "Refresh Now"
+  },
+  "navigation": {
+    "skip_to_content": "Skip to main content",
+    "main_menu": "Main Menu",
+    "user_menu": "User Menu",
+    "navigate_to": "Navigate to:"
+  },
+  "accessibility": {
+    "high_contrast": "High Contrast Mode",
+    "large_fonts": "Large Fonts",
+    "screen_reader": "Screen Reader Mode",
+    "reduce_motion": "Reduce Motion",
+    "keyboard_navigation": "Keyboard Navigation",
+    "accessibility": "Accessibility"
+  },
+  "filters": {
+    "status_filter": "Status Filter",
+    "severity_filter": "Severity Filter",
+    "type_filter": "Type Filter",
+    "time_range": "Time Range",
+    "all": "All",
+    "last_24h": "Last 24h",
+    "last_7d": "Last 7d",
+    "last_30d": "Last 30d",
+    "all_time": "All Time"
+  },
+  "export": {
+    "export_options": "Export Options",
+    "export_report": "Export Report (PDF)",
+    "export_charts": "Export Charts (PNG)",
+    "export_data": "Export Data (CSV)",
+    "export_network": "Export Network (JSON)",
+    "daily_report": "Daily Report",
+    "weekly_summary": "Weekly Summary"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "no_data": "No data available",
+    "error_loading": "Error loading data",
+    "success": "Success!",
+    "please_login": "Please login using the sidebar to access the dashboard."
+  }
+}

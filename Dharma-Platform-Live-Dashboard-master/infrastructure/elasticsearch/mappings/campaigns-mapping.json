@@ -1,0 +1,134 @@
+{
+  "settings": {
+    "number_of_shards": 2,
+    "number_of_replicas": 1,
+    "analysis": {
+      "analyzer": {
+        "campaign_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "stop"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "campaign_id": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "analyzer": "campaign_analyzer",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "campaign_analyzer"
+      },
+      "detection_date": {
+        "type": "date",
+        "format": "strict_date_optional_time||epoch_millis"
+      },
+      "status": {
+        "type": "keyword"
+      },
+      "coordination_score": {
+        "type": "float"
+      },
+      "participants": {
+        "properties": {
+          "user_id": {
+            "type": "keyword"
+          },
+          "username": {
+            "type": "keyword"
+          },
+          "platform": {
+            "type": "keyword"
+          },
+          "participation_score": {
+            "type": "float"
+          },
+          "post_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "content_samples": {
+        "type": "keyword"
+      },
+      "network_metrics": {
+        "properties": {
+          "node_count": {
+            "type": "integer"
+          },
+          "edge_count": {
+            "type": "integer"
+          },
+          "density": {
+            "type": "float"
+          },
+          "clustering_coefficient": {
+            "type": "float"
+          }
+        }
+      },
+      "temporal_patterns": {
+        "properties": {
+          "start_time": {
+            "type": "date"
+          },
+          "end_time": {
+            "type": "date"
+          },
+          "peak_activity": {
+            "type": "date"
+          },
+          "duration_hours": {
+            "type": "integer"
+          }
+        }
+      },
+      "impact_metrics": {
+        "properties": {
+          "total_reach": {
+            "type": "long"
+          },
+          "total_engagement": {
+            "type": "long"
+          },
+          "virality_score": {
+            "type": "float"
+          },
+          "platforms_affected": {
+            "type": "keyword"
+          }
+        }
+      },
+      "tags": {
+        "type": "keyword"
+      },
+      "analyst_notes": {
+        "type": "text",
+        "analyzer": "standard"
+      },
+      "created_at": {
+        "type": "date",
+        "format": "strict_date_optional_time||epoch_millis"
+      },
+      "updated_at": {
+        "type": "date",
+        "format": "strict_date_optional_time||epoch_millis"
+      }
+    }
+  }
+}

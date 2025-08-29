@@ -1,0 +1,108 @@
+{
+  "dashboard": {
+    "title": "प्रोजेक्ट धर्म - सोशल मीडिया इंटेलिजेंस",
+    "overview": "डैशबोर्ड अवलोकन",
+    "campaign_analysis": "अभियान विश्लेषण",
+    "alert_management": "अलर्ट प्रबंधन",
+    "settings": "सेटिंग्स",
+    "real_time_monitoring": "रियल-टाइम सोशल मीडिया निगरानी"
+  },
+  "metrics": {
+    "active_alerts": "सक्रिय अलर्ट",
+    "posts_analyzed_today": "आज विश्लेषित पोस्ट",
+    "bot_accounts_detected": "बॉट खाते का पता लगाया गया",
+    "active_campaigns": "सक्रिय अभियान",
+    "sentiment_distribution": "भावना वितरण",
+    "platform_activity": "प्लेटफॉर्म गतिविधि",
+    "key_metrics": "मुख्य मेट्रिक्स",
+    "geographic_distribution": "भौगोलिक वितरण"
+  },
+  "sentiment": {
+    "pro_india": "भारत समर्थक",
+    "neutral": "तटस्थ",
+    "anti_india": "भारत विरोधी",
+    "positive": "सकारात्मक",
+    "negative": "नकारात्मक",
+    "sentiment_trends": "भावना रुझान"
+  },
+  "alerts": {
+    "new": "नया",
+    "acknowledged": "स्वीकृत",
+    "in_progress": "प्रगति में",
+    "resolved": "हल किया गया",
+    "critical": "गंभीर",
+    "high": "उच्च",
+    "medium": "मध्यम",
+    "low": "कम",
+    "alert_inbox": "अलर्ट इनबॉक्स",
+    "alert_controls": "अलर्ट नियंत्रण",
+    "alert_statistics": "अलर्ट आंकड़े",
+    "recent_activity": "हाल की गतिविधि"
+  },
+  "campaigns": {
+    "coordination_score": "समन्वय स्कोर",
+    "participants": "प्रतिभागी",
+    "detected": "का पता लगाया गया",
+    "impact_score": "प्रभाव स्कोर",
+    "network_graph": "नेटवर्क ग्राफ",
+    "timeline_analysis": "समयरेखा विश्लेषण",
+    "participant_analysis": "प्रतिभागी विश्लेषण",
+    "content_analysis": "सामग्री विश्लेषण",
+    "campaign_overview": "अभियान अवलोकन"
+  },
+  "actions": {
+    "login": "लॉगिन",
+    "logout": "लॉगआउट",
+    "refresh": "रिफ्रेश",
+    "export": "निर्यात",
+    "acknowledge": "स्वीकार करें",
+    "assign": "असाइन करें",
+    "search": "खोजें",
+    "filter": "फिल्टर",
+    "sort": "क्रमबद्ध करें",
+    "apply_filters": "फिल्टर लागू करें",
+    "load_more": "और लोड करें",
+    "refresh_now": "अभी रिफ्रेश करें"
+  },
+  "navigation": {
+    "skip_to_content": "मुख्य सामग्री पर जाएं",
+    "main_menu": "मुख्य मेनू",
+    "user_menu": "उपयोगकर्ता मेनू",
+    "navigate_to": "यहाँ जाएं:"
+  },
+  "accessibility": {
+    "high_contrast": "उच्च कंट्रास्ट मोड",
+    "large_fonts": "बड़े फॉन्ट",
+    "screen_reader": "स्क्रीन रीडर मोड",
+    "reduce_motion": "गति कम करें",
+    "keyboard_navigation": "कीबोर्ड नेवीगेशन",
+    "accessibility": "पहुंच"
+  },
+  "filters": {
+    "status_filter": "स्थिति फिल्टर",
+    "severity_filter": "गंभीरता फिल्टर",
+    "type_filter": "प्रकार फिल्टर",
+    "time_range": "समय सीमा",
+    "all": "सभी",
+    "last_24h": "पिछले 24 घंटे",
+    "last_7d": "पिछले 7 दिन",
+    "last_30d": "पिछले 30 दिन",
+    "all_time": "सभी समय"
+  },
+  "export": {
+    "export_options": "निर्यात विकल्प",
+    "export_report": "रिपोर्ट निर्यात करें (PDF)",
+    "export_charts": "चार्ट निर्यात करें (PNG)",
+    "export_data": "डेटा निर्यात करें (CSV)",
+    "export_network": "नेटवर्क निर्यात करें (JSON)",
+    "daily_report": "दैनिक रिपोर्ट",
+    "weekly_summary": "साप्ताहिक सारांश"
+  },
+  "messages": {
+    "loading": "लोड हो रहा है...",
+    "no_data": "कोई डेटा उपलब्ध नहीं",
+    "error_loading": "डेटा लोड करने में त्रुटि",
+    "success": "सफलता!",
+    "please_login": "डैशबोर्ड तक पहुंचने के लिए कृपया साइडबार का उपयोग करके लॉगिन करें।"
+  }
+}

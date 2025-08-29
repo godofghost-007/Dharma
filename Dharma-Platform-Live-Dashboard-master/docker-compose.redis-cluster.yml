@@ -1,0 +1,181 @@
+version: '3.8'
+
+services:
+  # Redis Cluster Nodes
+  redis-node-1:
+    image: redis:7.2-alpine
+    container_name: dharma-redis-node-1
+    restart: unless-stopped
+    ports:
+      - "7001:7000"
+      - "17001:17000"
+    volumes:
+      - redis_node_1_data:/data
+      - ./infrastructure/redis/redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7000 --cluster-announce-ip redis-node-1
+    networks:
+      - dharma-cluster-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7000", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis-node-2:
+    image: redis:7.2-alpine
+    container_name: dharma-redis-node-2
+    restart: unless-stopped
+    ports:
+      - "7002:7000"
+      - "17002:17000"
+    volumes:
+      - redis_node_2_data:/data
+      - ./infrastructure/redis/redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7000 --cluster-announce-ip redis-node-2
+    networks:
+      - dharma-cluster-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7000", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis-node-3:
+    image: redis:7.2-alpine
+    container_name: dharma-redis-node-3
+    restart: unless-stopped
+    ports:
+      - "7003:7000"
+      - "17003:17000"
+    volumes:
+      - redis_node_3_data:/data
+      - ./infrastructure/redis/redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7000 --cluster-announce-ip redis-node-3
+    networks:
+      - dharma-cluster-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7000", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis-node-4:
+    image: redis:7.2-alpine
+    container_name: dharma-redis-node-4
+    restart: unless-stopped
+    ports:
+      - "7004:7000"
+      - "17004:17000"
+    volumes:
+      - redis_node_4_data:/data
+      - ./infrastructure/redis/redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7000 --cluster-announce-ip redis-node-4
+    networks:
+      - dharma-cluster-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7000", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis-node-5:
+    image: redis:7.2-alpine
+    container_name: dharma-redis-node-5
+    restart: unless-stopped
+    ports:
+      - "7005:7000"
+      - "17005:17000"
+    volumes:
+      - redis_node_5_data:/data
+      - ./infrastructure/redis/redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7000 --cluster-announce-ip redis-node-5
+    networks:
+      - dharma-cluster-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7000", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis-node-6:
+    image: redis:7.2-alpine
+    container_name: dharma-redis-node-6
+    restart: unless-stopped
+    ports:
+      - "7006:7000"
+      - "17006:17000"
+    volumes:
+      - redis_node_6_data:/data
+      - ./infrastructure/redis/redis-cluster.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7000 --cluster-announce-ip redis-node-6
+    networks:
+      - dharma-cluster-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7000", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Cluster Initialization
+  redis-cluster-init:
+    image: redis:7.2-alpine
+    container_name: dharma-redis-cluster-init
+    networks:
+      - dharma-cluster-network
+    depends_on:
+      - redis-node-1
+      - redis-node-2
+      - redis-node-3
+      - redis-node-4
+      - redis-node-5
+      - redis-node-6
+    command: >
+      sh -c "
+        sleep 10 &&
+        redis-cli --cluster create 
+        redis-node-1:7000 
+        redis-node-2:7000 
+        redis-node-3:7000 
+        redis-node-4:7000 
+        redis-node-5:7000 
+        redis-node-6:7000 
+        --cluster-replicas 1 
+        --cluster-yes
+      "
+    restart: "no"
+
+  # Redis Cluster Proxy (for easier client connections)
+  redis-cluster-proxy:
+    image: haproxy:2.8-alpine
+    container_name: dharma-redis-cluster-proxy
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./infrastructure/redis/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      - dharma-cluster-network
+    depends_on:
+      - redis-node-1
+      - redis-node-2
+      - redis-node-3
+      - redis-node-4
+      - redis-node-5
+      - redis-node-6
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "6379"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  redis_node_1_data:
+  redis_node_2_data:
+  redis_node_3_data:
+  redis_node_4_data:
+  redis_node_5_data:
+  redis_node_6_data:
+
+networks:
+  dharma-cluster-network:
+    driver: bridge
